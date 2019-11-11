@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('../app');
+const debug = require('debug')('blognew:server');
+const http = require('http');
+/**
+ * Get port from environment and store in Express.
+ */
+
+const port = normalizePort(process.env.PORT || '3000');
+
+/**
+ * Create HTTP server.
+ */
+
+const server = http.createServer(app.callback());
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/* webSocket */
+const WebSocket = require('ws');
+const WebSocketServer = WebSocket.Server;
+const wss = new WebSocketServer({
+	server: server
+});
+
+wss.on('connection', function (ws,req) {
+	console.log(req.headers.cookie)
+	console.log(ws.upgradeReq)
+
+	// cookieParser(req.headers.cookie, null, function(err) {
+	// 	var sessionID = req.headers.cookie['connect.sid'];
+	// 	console.log(sessionID)
+  //   // sessionStore.get(sessionID, function(err, sess) {
+  //   //   console.log(sess);
+  //   // });
+	// });
+	
+	//识别用户 req.session.user
+	// let user = ws.upgradeReq.session;
+	console.log(user)
+	if (!user) { 
+		// Cookie不存在或无效，直接关闭WebSocket:
+		ws.close(4001, 'Invalid user');
+	}
+	// 识别成功，把user绑定到该WebSocket对象:
+	ws.user = user;
+	// 绑定WebSocketServer对象:
+	ws.wss = wss;
+	console.log(`[SERVER] connection()`);
+	ws.on('message', function (message) {
+		console.log(message);
+		if (message && message.trim()) {
+				let msg = createMessage('chat', this.user, message.trim());
+				this.wss.broadcast(msg);
+		}
+	});
+});
+wss.broadcast = function (data) {
+	wss.clients.forEach(function (client) {
+			client.send(data);
+	});
+};
+
+var messageIndex = 0;
+
+function createMessage(type, user, data) {
+    messageIndex ++;
+    return JSON.stringify({
+        id: messageIndex,
+        type: type,
+        user: user,
+        data: data
+    });
+}
+
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
