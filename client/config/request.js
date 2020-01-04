@@ -5,9 +5,9 @@ import { MessageBox, Message } from 'element-ui'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: '/api', // url = base url + request url process.env.VUE_APP_BASE_API. http://localhost:3000
+  baseURL: `/api`, //${process.env.VUE_APP_BASE_API} 
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 15000 // request timeout
+  timeout: 60000 // request timeout
 })
 
 // request interceptor

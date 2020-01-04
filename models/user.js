@@ -32,7 +32,7 @@ User.prototype.save = async function(query) {
 }
 
 //读取用户信息
-User.get = async function(name) {
+User.prototype.get = async function(name) {
 	const result = await mongodb.find({name:name},'users')
 	return result
 

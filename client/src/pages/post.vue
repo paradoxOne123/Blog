@@ -362,41 +362,6 @@ export default {
 						accept: 'image/*',
 						token: 'test',
 						url: '/api/article/upload',
-						// linkToImgUrl: '/api/upload/fetch',
-						// filename (name) {
-						// 	// ? \ / : | < > * [ ] white to -
-						// 	// return name.replace(/\?|\\|\/|:|\||<|>|\*|\[|\]|\s+/g, '-')
-
-						// 	var fileFormat = (name).split(".");
-						// 	return fileFormat[0] + '-' + Date.now() + "." + fileFormat[fileFormat.length - 1]
-						// },
-						// handler (file) {
-						// 	// debugger
-						// 	// console.log(file)
-						// 	// let param = new FormData(); //创建form对象
-						// 	// param.append('file',file[0]);//通过append向form对象添加数据
-						// 	// let config = {
-						// 	// 	headers:{'Content-Type':'multipart/form-data'}
-						// 	// }; 
-						// 	// uploadImg(param, config).then(res => {
-						// 	// 	if(res.code === 1000){
-						// 	// 		return res
-						// 	// 	}
-						// 	// })
-						// 	return {
-						// 		code: 0,
-						// 		msg: '',
-						// 		data: {
-						// 			errFiles: [],
-						// 			succMap: {
-						// 				'flow-300x224.png': 'http://tech.etouch.cn/wp-content/uploads/2019/08/flow-300x224.png'
-						// 			}
-						// 		}
-						// 	}
-
-						// 	// return {"code":0,"msg": '',"data":{"succMap":{"flow-300x224.png":"http://tech.etouch.cn/wp-content/uploads/2019/08/flow-300x224.png"}}}
-							
-						// }
 					},
 					preview: {
 						mode: "both",
@@ -549,6 +514,13 @@ export default {
 				background-color: #333;
 				color: #fdfdfd;
 			}
+			.vditor-preview{
+				.vditor-reset{
+					img{
+						max-width: 100%;
+					}
+				}
+			}
 		}
 	}
 </style>
@@ -562,7 +534,7 @@ export default {
   li{
 		display: list-item!important;
 	}
-  #vditor{
+  /* #vditor{
 		width: 100%;
 		height:650px;
 		text-align: left;
@@ -573,6 +545,6 @@ export default {
 	#vditor .vditor-textarea{
 		background-color: #333;
 		color: #fdfdfd;
-	}
+	} */
 </style>
 

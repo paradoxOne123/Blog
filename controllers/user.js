@@ -22,15 +22,25 @@ async function login(ctx) {
 		let md5 = crypto.createHash('md5'),
         password = md5.update(req.password).digest('hex');
 		
-		const result = await User.get(req.name)
+		let newUser = new User({});
+		const result = await newUser.get(req.name)
+		console.log("login result list: ",result.list)
+
 		if(result.err) {
-			ctx.body = {
+			return ctx.body = {
+				code: 5000,
+				msg: result.err
+			};
+		}
+		if(!result.list[0]) {
+			return ctx.body = {
 				code: 5000,
 				msg: '用户不存在!'
 			};
 		}
-		if (result.password != password) {
-			ctx.body = {
+		console.log(result.list[0].password, password)
+		if (result.list[0].password != password) {
+			return ctx.body = {
 				code: 5000,
 				msg: '密码错误!'
 			};
@@ -54,9 +64,9 @@ async function register(ctx) {
 
 		const name = req.name,
         email = req.email,
-        password = req.password,
+        password_f = req.password,
         password_re = req['password-repeat'];
-    if (password_re != password) {
+    if (password_re != password_f) {
       res.send({code: 5000,msg: '两次输入的密码不一致!'});
     }
     let md5 = crypto.createHash('md5'),
@@ -69,31 +79,31 @@ async function register(ctx) {
 
 		const result = await newUser.get(req.name)
 		if(result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
 		}
 		if (result.list[0]) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: '用户已存在！'
 			};
 		}
 		if (result.list[0]&&result.list[0].email == email) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: '该邮箱已注册！'
 			};
 		}
 		const res = await newUser.save()
 		if(result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
 		}
-		ctx.session.user = user;
+		ctx.session.user = req;
 		ctx.status = 200
 		ctx.body = {
 			code: 1000,

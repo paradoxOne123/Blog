@@ -50,7 +50,7 @@
 												width="400"
 												trigger="click">
 												<el-input type="text" :placeholder="'回复@sss'" v-model="curReplay" class="content"></el-input>
-												<el-button type="primary" @click="onComment(item.name,2,item.comtid)" :disabled="!user" style="margin-top: 12px;height: 38px;">发表</el-button>
+												<el-button type="primary" @click="onComment(item.username,2,item.comtid)" :disabled="!user" style="margin-top: 12px;height: 38px;">发表</el-button>
 												<el-button slot="reference">
 													<span class="reply-btn"><i class="el-icon-chat-round"></i> 回复</span>
 												</el-button>
@@ -72,7 +72,7 @@
 										<div class="cont-info">
 											<span>{{ data.username }}</span>
 										</div>
-										<p>回复<span style="color: #ff4f6b;">{{ item.atuser }}</span>: {{ data.cont }}</p>
+										<p>回复<span style="color: #ff4f6b;">{{ data.atuser }}</span>: {{ data.cont }}</p>
 										<div class="reply">
 											<span>{{ data.time }}</span>
 											<div style="float:right">
@@ -81,7 +81,7 @@
 													width="400"
 													trigger="click">
 													<el-input type="text" :placeholder="'回复@sss'" v-model="curReplay" class="content"></el-input>
-													<el-button type="primary" @click="onComment(data.name,2,item.comtid)" :disabled="!user" style="margin-top: 12px;height: 38px;">发表</el-button>
+													<el-button type="primary" @click="onComment(data.username,2,item.comtid)" :disabled="!user" style="margin-top: 12px;height: 38px;">发表</el-button>
 													<el-button slot="reference">
 														<span class="reply-btn"><i class="el-icon-chat-round"></i> 回复</span>
 													</el-button>
@@ -105,11 +105,11 @@
 <script>
 import Header from '../components/Header';
 import { articleDetail,comment } from '../api/article'
+import { parseUrl } from '../utils/utils.js'
 // import { getUserInfo } from '../api/user'
 
 import Vditor from 'vditor'
 
-let cont = {}
 export default {
   name: 'Detail',
   components: {
@@ -117,7 +117,7 @@ export default {
   },
   data () {
     return {
-			cont,
+			cont: {},
 			vditor: {},
 			user: window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')) : null,
 			form: {
@@ -131,12 +131,16 @@ export default {
 		var self = this
 		console.log(this.$route.params)
 
-    let name = this.$route.params.name
-		let title = this.$route.params.title
-		let id = this.$route.params.id
+    // let name = this.$route.params.name
+		// let title = this.$route.params.title
+		// let id = this.$route.params.id
+
+		let name = parseUrl().name
+		let title = parseUrl().title
+		let id = parseUrl().id
 		
     articleDetail({name:name, title:title, id:id}).then(res => {
-			this.cont = res.list[0]
+			this.cont = res.list[0] || {}
 			
 			this.vditor = new Vditor('vditor', {
 				cache: false,
@@ -304,7 +308,7 @@ export default {
 				})
 				return
 			}
-			console.log(this.form.comment)
+			
 			let param = {
 				id: this.cont._id,//文章id
 				author: this.cont.name,
@@ -317,6 +321,7 @@ export default {
 				comtid: status===1 ? null : comtid,//当前评论ID 若是评论文章则为空
 				cont: status===1 ? this.form.comment : this.curReplay //内容
 			}
+			console.log(param)
 
 			comment(param).then(res => {
 				this.$message({
@@ -326,9 +331,12 @@ export default {
 					onClose: function(){
 						//重新请求列表 这里评论应该拆分～
 						status===1 ? self.form.comment='' : self.curReplay=''
-						let name = self.$route.params.name
-						let title = self.$route.params.title
-						let id = self.$route.params.id
+						// let name = self.$route.params.name
+						// let title = self.$route.params.title
+						// let id = self.$route.params.id
+						let name = parseUrl().name
+						let title = parseUrl().title
+						let id = parseUrl().id
 						articleDetail({name:name, title:title, id: id}).then(res => {
 							self.cont = res.list[0]
 						})
@@ -418,6 +426,9 @@ export default {
 				position: relative;
 				.vditor-reset{
 					max-width: 100%!important;
+					img{
+						max-width: 100%!important;
+					}
 				}
 			}
 			.vditor-counter{

@@ -7,7 +7,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import router from './router'
 
-import { getUserInfo } from './api/user'
+// import { getUserInfo } from './api/user'
 
 Vue.config.productionTip = false
 

@@ -90,13 +90,14 @@ Db.prototype.updateComt = async function(data,col){
 		let query = data;
 		//新增评论则新建ID
 		if(query.mode === 1){
-			query.comtid = date.getTime().toString(16);//评论ID 
+			query.comtid = new Date().getTime().toString(16);//评论ID 
 		}
 		
 		//评论数据
 		let comments = {
-			// atuser: ,
-			atuserid: query.atuserid,
+			comtid: query.comtid,
+			atuser: query.atuser,
+			// atuserid: query.atuserid,
 			cont: query.cont,
 			username: query.username,
 			userid: query.userid,

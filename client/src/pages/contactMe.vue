@@ -9,12 +9,14 @@
 		<el-container>
 			<transition  name="fade">
 				<el-row style="background: transparent">  
-					<el-col :span="24" style="margin: 20px 0px 50px;">
+					<el-col :span="24" class="hidden-xs-only" style="margin-top: 20px"></el-col>
+					<el-col :span="24">
 						<h2>Contact Me</h2>
 						<p>很荣幸，如果您想与我取得联系，可以扫描下方二维码，添加微信请注明来源</p>
 						<p>或者您可以在下方直接给我留言～</p>
 					</el-col>
-					<el-col :span="10">
+					<el-col :span="24" class="hidden-xs-only" style="margin-bottom: 50px"></el-col>
+					<el-col :sm="24" :md="10" :lg="10" style="margin-bottom: 20px">
 						<el-card class="box-card">
 							<el-row style="width:100%">
 								<el-col :span="12">
@@ -34,7 +36,7 @@
 						</el-card>
 					</el-col>
 					<!-- <el-col :span=""></el-col> -->
-					<el-col :span="14" class="message">
+					<el-col :sm="24" :md="14" :lg="14" class="message">
 						<el-form ref="form" :model="form" label-width="80px">
 							<el-form-item label="">
 								<el-input v-model="form.name" placeholder="Name"></el-input>
@@ -67,7 +69,8 @@
 <script>
 import Header from '../components/Header';
 import { getUserInfo } from '../api/user';
-import fun1 from '../components/codeView/js/code'
+import fun1 from '../components/codeView/js/code';
+import 'element-ui/lib/theme-chalk/display.css';
 
 export default {
   name: 'Contact',

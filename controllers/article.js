@@ -1,12 +1,12 @@
-var Post = require('../models/post.js'),
-		multer = require('multer'),
+let Post = require('../models/post.js'),
 		path = require('path');
+		fs = require('fs');
 
 async function getArtList(ctx) {
 	try {
 		const result = await Post.getByPage(ctx.query)
 		if (result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
@@ -28,7 +28,7 @@ async function getArtDetail(ctx) {
 		console.log(ctx.query)
 		const result = await Post.getOne(ctx.query)
 		if (result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
@@ -55,7 +55,7 @@ async function postArt(ctx) {
 
 		const result = await Post.save(reqPost)
 		if (result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
@@ -82,7 +82,7 @@ async function editArt(ctx) {
 
 		const result = await Post.edit(reqEdit)
 		if (result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
@@ -105,7 +105,7 @@ async function addCommit(ctx) {
 
 		const result = await Post.saveComts(req)
 		if (result.err) {
-			ctx.body = {
+			return ctx.body = {
 				code: 5000,
 				msg: result.err
 			};
@@ -123,36 +123,29 @@ async function addCommit(ctx) {
 //文件上传
 async function upload(ctx) {
 	try {
-		let req = ctx.request.body;
-		let storage = multer.diskStorage({
-			destination: function(req, file, cb) {
-					cb(null, path.join(__dirname,'../public/images/'))
-			},
-			filename: function(req, file, cb) {
-					const fileFormat = (file.originalname).split(".");
-					cb(null, fileFormat[0] + Date.now() + "." + fileFormat[fileFormat.length - 1]);//'-' + Date.now() +   "." + fileFormat[fileFormat.length - 1]
-			}
-		});
-		let upload = multer({
-			storage: storage
-		});
+		const file = ctx.request.files['file[]']; // 获取上传文件
+		// 创建可读流
+		const reader = fs.createReadStream(file.path);
+		const tmp = new Date().getTime()
+		let filePath = path.join(__dirname, '../public/upload/images') + `/${tmp}_${file.name}`;
+		let remfileUrl = 'http://paradoxone.club/upload/images' + `/${tmp}_${file.name}`;
+		// 创建可写流
+		const upStream = fs.createWriteStream(filePath);
+		// 可读流通过管道写入可写流
+		reader.pipe(upStream);
 		
-		//上传文件
-		upload.array('file[]');
-
 		let result = {};
 		result.succMap = {};
-		for(let i=0; i<req.files.length; i++){
-			result.succMap[req.files[i].filename] = req.files[i].path
-		}
+		// for(let i=0; i<req.files.length; i++){
+			result.succMap[file.name] = remfileUrl
+		// }
 		result.errFiles = []
 
 		ctx.body = {
 			code: 0,
 			msg: '',
-			data: result 
+			data: result
 		};
-
 	} catch (e) {
 		console.log(e)
 	}

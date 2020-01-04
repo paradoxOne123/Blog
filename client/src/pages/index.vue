@@ -39,7 +39,7 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="24" style="margin:25px;">
+        <el-col :span="24">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -116,8 +116,8 @@ export default {
     },
     detail(item) {
       this.$router.push({
-        name: 'Detail',
-        // path:'/detail',
+        // name: 'Detail',
+        path:`/detail?name=${item.name}&title=${item.title}&id=${item._id}`,
         params: {
           name: item.name,
 					title: item.title,

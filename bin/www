@@ -11,13 +11,46 @@ const http = require('http');
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
-
+const port = normalizePort(process.env.PORT || '3389');
+console.log('process.env.PORT:',process.env.PORT)
 /**
  * Create HTTP server.
  */
 
 const server = http.createServer(app.callback());
+
+/* socket IO  */
+const io = require('socket.io')(server);
+io.on('connection', function(socket) {
+	console.log('a user connected');
+	socket.broadcast.emit('new_user', {});
+})
+//监听客户端链接,回调函数会传递本次链接的socket
+let userSockets = {}
+io.on('connection', socket => {
+	//获取客户端连接
+	socket.on("connectToServer", data => {
+		console.log("connect in: ",data)
+		if(userSockets[data._id]){// 是都需要校验登录用户？ 防止其他来源的连接行为？
+			io.emit("sendToClient", data);
+		}else{
+			//存储上线用户
+			userSockets[data._id] = socket.id
+			//发送消息 这里应当是服务端推送的消息
+			io.emit("sendToClient", data);
+		}
+	});
+	// 监听客户端发送的信息
+	socket.on("sentToServer", message => {
+		// 给客户端返回信息
+		message += '123'
+		io.emit("sendToClient", {message});
+	});
+	// 监听连接断开事件
+	socket.on("disconnect", () => {
+		console.log("连接已断开...");
+	});
+});
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -27,62 +60,54 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+
 /* webSocket */
-const WebSocket = require('ws');
-const WebSocketServer = WebSocket.Server;
-const wss = new WebSocketServer({
-	server: server
-});
+// const WebSocket = require('ws');
+// const WebSocketServer = WebSocket.Server;
+// const wss = new WebSocketServer({
+// 	server: server
+// });
 
-wss.on('connection', function (ws,req) {
-	console.log(req.headers.cookie)
-	console.log(ws.upgradeReq)
-
-	// cookieParser(req.headers.cookie, null, function(err) {
-	// 	var sessionID = req.headers.cookie['connect.sid'];
-	// 	console.log(sessionID)
-  //   // sessionStore.get(sessionID, function(err, sess) {
-  //   //   console.log(sess);
-  //   // });
-	// });
+// wss.on('connection', function (ws,req) {
+// 	console.log(req.headers.cookie)
+// 	console.log(ws.upgradeReq)
 	
-	//识别用户 req.session.user
-	// let user = ws.upgradeReq.session;
-	console.log(user)
-	if (!user) { 
-		// Cookie不存在或无效，直接关闭WebSocket:
-		ws.close(4001, 'Invalid user');
-	}
-	// 识别成功，把user绑定到该WebSocket对象:
-	ws.user = user;
-	// 绑定WebSocketServer对象:
-	ws.wss = wss;
-	console.log(`[SERVER] connection()`);
-	ws.on('message', function (message) {
-		console.log(message);
-		if (message && message.trim()) {
-				let msg = createMessage('chat', this.user, message.trim());
-				this.wss.broadcast(msg);
-		}
-	});
-});
-wss.broadcast = function (data) {
-	wss.clients.forEach(function (client) {
-			client.send(data);
-	});
-};
+// 	//识别用户 req.session.user
+// 	// let user = ws.upgradeReq.session;
+// 	console.log(user)
+// 	if (!user) { 
+// 		// Cookie不存在或无效，直接关闭WebSocket:
+// 		ws.close(4001, 'Invalid user');
+// 	}
+// 	// 识别成功，把user绑定到该WebSocket对象:
+// 	ws.user = user;
+// 	// 绑定WebSocketServer对象:
+// 	ws.wss = wss;
+// 	console.log(`[SERVER] connection()`);
+// 	ws.on('message', function (message) {
+// 		console.log(message);
+// 		if (message && message.trim()) {
+// 				let msg = createMessage('notice', this.user, message.trim());
+// 				this.wss.broadcast(msg);
+// 		}
+// 	});
+// });
+// wss.broadcast = function (data) {
+// 	wss.clients.forEach(function (client) {
+// 			client.send(data);
+// 	});
+// };
 
-var messageIndex = 0;
-
-function createMessage(type, user, data) {
-    messageIndex ++;
-    return JSON.stringify({
-        id: messageIndex,
-        type: type,
-        user: user,
-        data: data
-    });
-}
+// var messageIndex = 0;
+// function createMessage(type, user, data) {
+//     messageIndex ++;
+//     return JSON.stringify({
+//         id: messageIndex,
+//         type: type,
+//         user: user,
+//         data: data
+//     });
+// }
 
 
 
