@@ -11,8 +11,6 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-// Vue.component(Button.name, Button);
-// Vue.component(Select.name, Select);
 Vue.use(ElementUI)
 
 /* eslint-disable no-new */
