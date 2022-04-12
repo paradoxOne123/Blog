@@ -15,7 +15,7 @@
   "dependencies": {
     "element-ui": "^2.11.1",
     "marked": "^0.7.0",
-    "vditor": "^1.7.9",
+    "vditor": "^3.8.13",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vue-scroll": "^2.1.12"
